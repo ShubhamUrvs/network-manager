@@ -16,9 +16,6 @@ const Processes = () => {
     }, [messages['/topic/processes']]);
 
     const handleKill = async (pid) => {
-        // DEBUG: Confirm which file is running
-        alert("PROCESS VIEW DEBUG: Attempting to kill PID " + pid);
-        
         if (!window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
             return;
         }
@@ -31,12 +28,13 @@ const Processes = () => {
             });
 
             if (response.ok) {
-                alert('SUCCESS: Signal sent to backend.');
+                // Soft notification could be added here instead of alert
+                console.log('Kill signal sent for PID:', pid);
             } else {
-                alert('SERVER ERROR: Status ' + response.status + ' - Check port 8082.');
+                alert('Server Error: Could not request termination.');
             }
         } catch (err) {
-            alert('NETWORK ERROR: ' + err.message + '\n\nPlease ensure backend is running at 127.0.0.1:8082.');
+            alert('Network Error: Ensure the agent and backend are running.');
         }
     };
 
