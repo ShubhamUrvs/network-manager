@@ -15,13 +15,28 @@ const Processes = () => {
         }
     }, [messages['/topic/processes']]);
 
-    const handleKill = (pid) => {
-        if (window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
-            fetch(`http://localhost:8081/api/process/kill/${pid}`, { method: 'POST' })
-                .then(res => {
-                    if (res.ok) alert('Kill signal sent to agent.');
-                    else alert('Failed to send kill signal.');
-                });
+    const handleKill = async (pid) => {
+        // DEBUG: Confirm which file is running
+        alert("PROCESS VIEW DEBUG: Attempting to kill PID " + pid);
+        
+        if (!window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
+            return;
+        }
+
+        try {
+            // Using 127.0.0.1:8082 to match the new backend port and avoid DNS issues
+            const response = await fetch(`http://127.0.0.1:8082/api/processes/kill/${pid}`, { 
+                method: 'POST',
+                mode: 'cors'
+            });
+
+            if (response.ok) {
+                alert('SUCCESS: Signal sent to backend.');
+            } else {
+                alert('SERVER ERROR: Status ' + response.status + ' - Check port 8082.');
+            }
+        } catch (err) {
+            alert('NETWORK ERROR: ' + err.message + '\n\nPlease ensure backend is running at 127.0.0.1:8082.');
         }
     };
 
