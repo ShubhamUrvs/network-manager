@@ -49,26 +49,26 @@ docker compose -f docker-compose.jenkins.yml up -d
 
 ### 2. Configure Jenkins Pipeline
 1. Create a **New Item** -> **Pipeline**.
-2. Under **Build Triggers**, select **GitHub hook trigger for GITScm polling**.
+2. Under **Build Triggers**, select **GitHub hook trigger for GITScm polling** or **Poll SCM** (`* * * * *`).
 3. Under **Pipeline**, set Definition to **Pipeline script from SCM**.
 4. Set SCM to **Git** and provide your Repository URL.
 5. Add your GitHub PAT as credentials (ID: `github-creds`).
 6. Set Branch Specifier to `**/main` (to only deploy production code).
-
-### 3. Setup GitHub Webhook
-1. In GitHub, go to **Settings > Webhooks > Add Webhook**.
-2. Payload URL: `http://your-jenkins-ip:8080/github-webhook/`.
-3. Content type: `application/json`.
 
 ---
 
 ## 🛠️ Troubleshooting
 
 ### Port Conflicts
-If you see an error like `Bind for 0.0.0.0:5432 failed: port is already allocated`, edit the `ports` section in `docker-compose.yml` to use an unused port (e.g., `5434:5432`).
+If you see an error like `port is already allocated`, run the following to clear old containers:
+```bash
+docker compose down
+docker stop $(docker ps -aq)
+docker system prune -f
+```
 
-### Agent Connection Issues
-Ensure the `BACKEND_URL` in `agent/src/main.py` matches the port exposed in your `docker-compose.yml` (default is `8082`).
+### Browser Cache (Important)
+If the dashboard appears "Disconnected" or buttons don't work after an update, **Clear your Browser Cache** (Ctrl+Shift+Delete) or use **Incognito Mode**.
 
-### Jenkins "mvn not found"
-If Jenkins fails at the build stage, ensure you have the **Maven Integration** plugin installed or that your Jenkins node has Maven in its system PATH.
+### Agent Permissions
+Always run the agent in a terminal with **Administrator** privileges to allow for process termination.

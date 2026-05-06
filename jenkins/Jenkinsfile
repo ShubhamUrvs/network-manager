@@ -24,6 +24,9 @@ pipeline {
         }
 
         stage('Docker Build & Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
                 script {
                     if (isUnix()) {
