@@ -22,6 +22,9 @@ public class MetricsServiceTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
+    @Mock
+    private SuggestionEngineService suggestionEngine;
+
     @InjectMocks
     private MetricsService metricsService;
 
@@ -35,5 +38,6 @@ public class MetricsServiceTest {
 
         verify(metricRepository, times(1)).save(any(Metric.class));
         verify(messagingTemplate, times(1)).convertAndSend(any(String.class), any(Metric.class));
+        verify(suggestionEngine, times(1)).evaluate(any(Metric.class));
     }
 }
