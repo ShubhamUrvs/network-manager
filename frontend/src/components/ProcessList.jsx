@@ -3,32 +3,31 @@ import { XCircle, Activity } from 'lucide-react';
 
 const ProcessList = ({ processes }) => {
     const handleKill = async (pid) => {
-        console.log("Attempting to kill PID:", pid);
+        // LOUD DEBUG: Check if the function even starts
+        alert("DEBUG: Attempting to kill PID " + pid);
         
         if (!window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8082/api/processes/kill/${pid}`, { 
+            console.log("Fetching: http://127.0.0.1:8082/api/processes/kill/" + pid);
+            
+            // Using 127.0.0.1 instead of localhost for better Windows compatibility
+            const response = await fetch(`http://127.0.0.1:8082/api/processes/kill/${pid}`, { 
                 method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
+                mode: 'cors'
             });
 
-            console.log("Server responded with status:", response.status);
-
             if (response.ok) {
-                alert('SUCCESS: Kill signal sent to agent.');
+                alert('SUCCESS: Signal sent to backend.');
             } else {
-                alert(`SERVER ERROR: ${response.status} - ${response.statusText}`);
+                alert('SERVER ERROR: Status ' + response.status);
             }
         } catch (err) {
-            console.error("NETWORK ERROR:", err);
-            alert(`CONNECTION FAILED: Could not reach the backend at http://localhost:8082. \n\nError: ${err.message}`);
+            alert('NETWORK ERROR: ' + err.message + '\n\nPlease check if backend is running on 8082.');
+        } finally {
+            console.log("Fetch attempt finished.");
         }
     };
 
