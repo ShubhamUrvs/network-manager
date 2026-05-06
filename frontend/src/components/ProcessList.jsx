@@ -7,7 +7,11 @@ const ProcessList = ({ processes }) => {
             fetch(`http://localhost:8082/api/processes/kill/${pid}`, { method: 'POST' })
                 .then(res => {
                     if (res.ok) alert('Kill signal sent to agent.');
-                    else alert('Failed to send kill signal.');
+                    else alert('Failed to send kill signal. Server returned: ' + res.status);
+                })
+                .catch(err => {
+                    console.error('Termination error:', err);
+                    alert('Network error while trying to terminate: ' + err.message);
                 });
         }
     };
