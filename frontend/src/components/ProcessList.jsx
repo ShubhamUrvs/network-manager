@@ -2,17 +2,33 @@ import React from 'react';
 import { XCircle, Activity } from 'lucide-react';
 
 const ProcessList = ({ processes }) => {
-    const handleKill = (pid) => {
-        if (window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
-            fetch(`http://localhost:8082/api/processes/kill/${pid}`, { method: 'POST' })
-                .then(res => {
-                    if (res.ok) alert('Kill signal sent to agent.');
-                    else alert('Failed to send kill signal. Server returned: ' + res.status);
-                })
-                .catch(err => {
-                    console.error('Termination error:', err);
-                    alert('Network error while trying to terminate: ' + err.message);
-                });
+    const handleKill = async (pid) => {
+        console.log("Attempting to kill PID:", pid);
+        
+        if (!window.confirm(`Are you sure you want to terminate process ${pid}?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8082/api/processes/kill/${pid}`, { 
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log("Server responded with status:", response.status);
+
+            if (response.ok) {
+                alert('SUCCESS: Kill signal sent to agent.');
+            } else {
+                alert(`SERVER ERROR: ${response.status} - ${response.statusText}`);
+            }
+        } catch (err) {
+            console.error("NETWORK ERROR:", err);
+            alert(`CONNECTION FAILED: Could not reach the backend at http://localhost:8082. \n\nError: ${err.message}`);
         }
     };
 
