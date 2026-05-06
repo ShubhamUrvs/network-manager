@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_COMPOSE = 'docker-compose'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build & Test Backend') {
+            steps {
+                dir('backend') {
+                    // This assumes Maven is installed on the Jenkins agent or via plugin
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                // Build all images defined in docker-compose.yml
+                sh "${DOCKER_COMPOSE} build"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Stop existing containers and start new ones
+                sh "${DOCKER_COMPOSE} down"
+                sh "${DOCKER_COMPOSE} up -d"
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Build and Deployment Successful!'
+        }
+        failure {
+            echo 'Build or Deployment Failed. Check logs.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

@@ -1,0 +1,4 @@
+psutil==5.9.6
+ping3==4.0.4
+requests==2.31.0
+websocket-client==1.6.4
