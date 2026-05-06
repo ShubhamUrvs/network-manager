@@ -4,7 +4,7 @@ import signal
 import sys
 import threading
 import json
-import websocket
+import stomp
 from collectors.network import get_network_stats
 from collectors.process import get_network_heavy_processes
 from api_client import APIClient
@@ -16,47 +16,44 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-BACKEND_URL = "http://localhost:8081"
-WS_URL = "ws://localhost:8081/ws" # Note: In a real app, STOMP over WS would be better
+BACKEND_URL = "http://localhost:8082"
+WS_HOST = "localhost"
+WS_PORT = 8082
 INTERVAL = 5 # seconds
 
-def ws_listener():
-    def on_message(ws, message):
+class CommandListener(stomp.ConnectionListener):
+    def on_message(self, frame):
         try:
-            # Basic non-STOMP check, though our backend uses STOMP.
-            # For simplicity in this script, we'll assume a simplified message 
-            # or recommend using a proper stomp library like 'stomp.py'
-            data = json.loads(message)
+            logging.info(f"Received frame: {frame.body}")
+            data = json.loads(frame.body)
             handle_command(data)
         except Exception as e:
-            pass
+            logging.error(f"Error handling command: {e}")
 
-    def on_error(ws, error):
-        logging.error(f"WS Error: {error}")
+def start_ws_listener():
+    conn = stomp.Connection([(WS_HOST, WS_PORT)])
+    conn.set_listener('', CommandListener())
+    
+    def connect_and_subscribe():
+        while True:
+            try:
+                conn.connect(wait=True)
+                conn.subscribe(destination='/topic/commands', id=1, ack='auto')
+                logging.info("Subscribed to /topic/commands")
+                while conn.is_connected():
+                    time.sleep(1)
+            except Exception as e:
+                logging.error(f"WS Connection error: {e}. Retrying in 5s...")
+                time.sleep(5)
 
-    def on_close(ws, close_status_code, close_msg):
-        logging.info("WS Connection Closed. Retrying in 5s...")
-        time.sleep(5)
-        start_ws()
-
-    def start_ws():
-        # Note: This is a simplified WS client. 
-        # For production STOMP, 'stomp.py' is recommended.
-        ws = websocket.WebSocketApp(WS_URL,
-                                  on_message=on_message,
-                                  on_error=on_error,
-                                  on_close=on_close)
-        ws.run_forever()
-
-    start_ws()
+    threading.Thread(target=connect_and_subscribe, daemon=True).start()
 
 def main():
     client = APIClient(BACKEND_URL)
     logging.info("Starting Smart Network Agent...")
 
-    # Start WS listener in background
-    # ws_thread = threading.Thread(target=ws_listener, daemon=True)
-    # ws_thread.start()
+    # Start STOMP listener in background
+    start_ws_listener()
 
     def signal_handler(sig, frame):
         logging.info("Stopping Agent...")

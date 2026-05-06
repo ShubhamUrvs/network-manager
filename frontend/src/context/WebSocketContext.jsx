@@ -9,7 +9,7 @@ export const WebSocketProvider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const stompClient = useRef(null);
     const topics = ['/topic/metrics', '/topic/processes', '/topic/alerts'];
-    const url = 'http://localhost:8081/ws';
+    const url = 'http://localhost:8082/ws';
 
     useEffect(() => {
         const socket = new SockJS(url);
