@@ -1,10 +1,6 @@
 pipeline {
     agent any
     
-    environment {
-        DOCKER_COMPOSE = 'docker-compose'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,24 +11,32 @@ pipeline {
         stage('Build & Test Backend') {
             steps {
                 dir('backend') {
-                    // This assumes Maven is installed on the Jenkins agent or via plugin
-                    sh 'mvn clean package'
+                    script {
+                        if (isUnix()) {
+                            sh 'mvn clean package'
+                        } else {
+                            // On Windows, use 'bat'. Ensure Maven (mvn) is in your PATH
+                            bat 'mvn clean package'
+                        }
+                    }
                 }
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Build & Deploy') {
             steps {
-                // Build all images defined in docker-compose.yml
-                sh "${DOCKER_COMPOSE} build"
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Stop existing containers and start new ones
-                sh "${DOCKER_COMPOSE} down"
-                sh "${DOCKER_COMPOSE} up -d"
+                script {
+                    if (isUnix()) {
+                        sh 'docker compose build'
+                        sh 'docker compose down'
+                        sh 'docker compose up -d'
+                    } else {
+                        // On Windows, ensure Docker Desktop is running
+                        bat 'docker compose build'
+                        bat 'docker compose down'
+                        bat 'docker compose up -d'
+                    }
+                }
             }
         }
     }
@@ -42,7 +46,7 @@ pipeline {
             echo 'Build and Deployment Successful!'
         }
         failure {
-            echo 'Build or Deployment Failed. Check logs.'
+            echo 'Build or Deployment Failed. Please check the "Console Output" in Jenkins for the error message.'
         }
         always {
             cleanWs()
