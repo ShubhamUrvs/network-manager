@@ -9,13 +9,19 @@ def handle_command(command):
     
     if action == "KILL" and pid:
         try:
-            logging.info(f"Attempting to kill process {pid}...")
-            # Use psutil for a cleaner kill
+            logging.info(f"Attempting to FORCE KILL process {pid}...")
             proc = psutil.Process(pid)
-            proc.terminate() # or proc.kill()
-            logging.info(f"Process {pid} terminated successfully.")
+            # Use kill() instead of terminate() for a forced stop
+            proc.kill() 
+            logging.info(f"Process {pid} killed successfully.")
             return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-            logging.error(f"Failed to kill process {pid}: {e}")
+        except psutil.NoSuchProcess:
+            logging.error(f"Failed to kill process {pid}: Process no longer exists.")
+            return False
+        except psutil.AccessDenied:
+            logging.error(f"Failed to kill process {pid}: Permission denied. Try running the agent as Administrator.")
+            return False
+        except Exception as e:
+            logging.error(f"Unexpected error killing process {pid}: {e}")
             return False
     return False
