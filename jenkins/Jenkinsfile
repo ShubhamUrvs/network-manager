@@ -25,7 +25,9 @@ pipeline {
 
         stage('Docker Build & Deploy') {
             when {
-                branch 'main'
+                expression { 
+                    return env.GIT_BRANCH?.contains('main') || env.GIT_BRANCH?.contains('develop') || env.BRANCH_NAME?.contains('main') || env.BRANCH_NAME?.contains('develop')
+                }
             }
             steps {
                 script {
