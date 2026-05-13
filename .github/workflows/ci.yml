@@ -37,7 +37,7 @@ jobs:
         run: npm install
         working-directory: frontend
       - name: Lint
-        run: npm run lint
+        run: npx eslint . --ext js,jsx --report-unused-disable-directives
         working-directory: frontend
       - name: Build
         run: npm run build
