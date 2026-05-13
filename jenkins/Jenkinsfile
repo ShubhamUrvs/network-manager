@@ -33,11 +33,15 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh 'docker compose down --remove-orphans'
+                        // Forcefully stop any container using the database port
+                        sh 'docker ps -q --filter "publish=5433" | xargs -r docker stop'
                         sh 'docker compose build'
                         sh 'docker compose up -d'
                     } else {
-                        // On Windows, ensure Docker Desktop is running
+                        // On Windows
                         bat 'docker compose down --remove-orphans'
+                        // Forcefully stop any container using the database port
+                        bat 'for /f "tokens=*" %%i in (\'docker ps -q --filter "publish=5433"\') do docker stop %%i'
                         bat 'docker compose build'
                         bat 'docker compose up -d'
                     }
