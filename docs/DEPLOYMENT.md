@@ -1,10 +1,10 @@
 # 🚀 Deployment Guide
 
-This guide covers the two ways to deploy the Smart Network Manager: **Manual (Docker Compose)** and **Automated (Jenkins CI/CD)**.
+This guide covers the ways to deploy and verify the Smart Network Manager using **Manual (Docker Compose)**, **GitHub Actions (CI)**, and **Jenkins (CD)**.
 
 ---
 
-## 📦 Option 1: Manual Deployment (Development/Local)
+## 🛠️ Option 1: Manual Deployment (Development/Local)
 
 Use this method to get the project running quickly on your local machine.
 
@@ -32,7 +32,19 @@ Use this method to get the project running quickly on your local machine.
 
 ---
 
-## 🤖 Option 2: Automated Deployment (Jenkins CI/CD)
+## 🏗️ Option 2: GitHub Actions (Continuous Integration)
+
+Every push to `main` or `develop` triggers the GitHub Actions CI pipeline (`.github/workflows/ci.yml`).
+
+### What it does:
+- **Backend Validation:** Runs Maven build and tests.
+- **Frontend Validation:** Runs dependency installation, linting, and production build.
+- **Agent Validation:** Verifies Python environment and dependencies.
+- **Docker Validation:** Ensures the entire stack can be built via Docker Compose.
+
+---
+
+## 🤖 Option 3: Automated Deployment (Jenkins CD)
 
 Use this method for a professional "Push-to-Deploy" experience.
 

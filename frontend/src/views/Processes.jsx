@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocketData } from '../context/WebSocketContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XCircle, Activity, Search, Filter, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { cn } from '../utils/cn';
+import { Activity, Search, Filter } from 'lucide-react';
 
 const Processes = () => {
     const { messages } = useWebSocketData();
