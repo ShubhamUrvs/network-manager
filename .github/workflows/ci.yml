@@ -36,8 +36,11 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: frontend
+      - name: Fix Permissions
+        run: chmod +x ./node_modules/.bin/eslint
+        working-directory: frontend
       - name: Lint
-        run: npx eslint . --ext js,jsx --report-unused-disable-directives
+        run: ./node_modules/.bin/eslint . --ext js,jsx --report-unused-disable-directives
         working-directory: frontend
       - name: Build
         run: npm run build
