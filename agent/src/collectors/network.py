@@ -7,7 +7,7 @@ def get_network_stats(host="8.8.8.8"):
     try:
         for _ in range(5):
             latency = ping3.ping(host, unit='ms')
-            if latency is not None:
+            if isinstance(latency, (int, float)):
                 latencies.append(latency)
             time.sleep(0.1)
     except Exception as e:

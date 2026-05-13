@@ -5,6 +5,7 @@ A comprehensive real-time network monitoring and optimization suite. This projec
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
 ![Jenkins](https://img.shields.io/badge/CI%2FCD-Jenkins-orange.svg)
+![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)
 
 ---
 
@@ -14,7 +15,7 @@ A comprehensive real-time network monitoring and optimization suite. This projec
 - **Process Oversight:** Identify network-heavy processes in real-time.
 - **Remote Termination:** Terminate intrusive processes directly from the dashboard.
 - **Intelligent Insights:** Automatic suggestions for network optimization.
-- **CI/CD Integrated:** Automated builds, tests, and deployments via Jenkins and GitHub.
+- **CI/CD Integrated:** Automated builds, tests, and deployments via GitHub Actions and Jenkins.
 
 ---
 
@@ -55,20 +56,24 @@ python src/main.py
 
 ---
 
-## 🔄 CI/CD with Jenkins & GitHub
+## 🔄 CI/CD Workflows
 
-This project is configured for a professional DevOps workflow.
+This project is configured for a professional DevOps workflow using both **GitHub Actions** and **Jenkins**.
 
-### Jenkins Setup
+### GitHub Actions (Primary CI)
+The `.github/workflows/ci.yml` handles automated checks on every push or pull request to `main` and `develop`:
+- **Backend:** Maven build and test.
+- **Frontend:** Dependency install, linting, and Vite build.
+- **Agent:** Python dependency check.
+- **Docker:** Verification of `docker compose build` for the entire stack.
+
+### Jenkins (CD & Alternative CI)
 1.  **Plugins:** Install `Docker Pipeline`, `GitHub Integration`, and `Git`.
 2.  **Credentials:** Add your GitHub Personal Access Token as `github-creds`.
 3.  **Pipeline:** Create a new Pipeline job pointing to the repository.
 4.  **Webhook:** Set up a GitHub webhook to `http://YOUR_URL/github-webhook/`.
 
-The `jenkins/Jenkinsfile` handles:
-- **Linting & Unit Tests**
-- **Docker Image Building**
-- **Automated Deployment**
+The `jenkins/Jenkinsfile` handles automated deployment on successful builds for primary branches.
 
 ---
 
