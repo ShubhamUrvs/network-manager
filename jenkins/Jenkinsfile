@@ -32,13 +32,13 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
+                        sh 'docker compose down --remove-orphans'
                         sh 'docker compose build'
-                        sh 'docker compose down'
                         sh 'docker compose up -d'
                     } else {
                         // On Windows, ensure Docker Desktop is running
+                        bat 'docker compose down --remove-orphans'
                         bat 'docker compose build'
-                        bat 'docker compose down'
                         bat 'docker compose up -d'
                     }
                 }
