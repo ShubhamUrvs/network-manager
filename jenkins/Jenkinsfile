@@ -33,19 +33,21 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh 'docker compose down --remove-orphans'
-                        // Forcefully stop any container using project ports
-                        sh 'docker ps -q --filter "publish=5433" | xargs -r docker stop || true'
-                        sh 'docker ps -q --filter "publish=8082" | xargs -r docker stop || true'
-                        sh 'docker ps -q --filter "publish=3001" | xargs -r docker stop || true'
+                        // Forcefully stop any container using project ports, ignore errors if none found
+                        sh 'docker ps -q --filter "publish=5433" --filter "publish=8082" --filter "publish=3001" | xargs -r docker stop || true'
                         sh 'docker compose build'
                         sh 'docker compose up -d'
                     } else {
-                        // On Windows
+                        // On Windows - Robustly handle empty results to avoid exit code 1
                         bat 'docker compose down --remove-orphans'
-                        // Forcefully stop any container using project ports
-                        bat 'for /f "tokens=*" %%i in (\'docker ps -q --filter "publish=5433"\') do docker stop %%i'
-                        bat 'for /f "tokens=*" %%i in (\'docker ps -q --filter "publish=8082"\') do docker stop %%i'
-                        bat 'for /f "tokens=*" %%i in (\'docker ps -q --filter "publish=3001"\') do docker stop %%i'
+                        bat '''
+                            @echo off
+                            for /f "tokens=*" %%i in (\'docker ps -q --filter "publish=5433" --filter "publish=8082" --filter "publish=3001"\') do (
+                                echo Stopping container %%i
+                                docker stop %%i
+                            )
+                            exit /b 0
+                        '''
                         bat 'docker compose build'
                         bat 'docker compose up -d'
                     }
